@@ -1,9 +1,7 @@
 import time
 import random
-import os  # ★★★ これを追加 ★★★
+import os
 from flask import Flask, render_template, request, session, redirect, url_for
-
-app = Flask(__name__)
 
 app = Flask(__name__)
 # セッションの秘密鍵
@@ -320,4 +318,32 @@ def game_over():
     """
     3分モード 終了ページ (難易度別)
     """
-    #
+    # チェック対象を time_remaining に変更
+    if 'time_remaining' not in session or 'difficulty' not in session:
+        return redirect(url_for('index'))
+        
+    total_score = session.get('total_score', 0)
+    total_correct = session.get('time_limit_total_correct', 0)
+    difficulty = session.get('difficulty')
+    
+    is_new_highscore = False
+    
+    score_key = f"time_limit_max_score_{difficulty}" 
+
+    if total_score > session.get(score_key, 0):
+        session[score_key] = total_score
+        is_new_highscore = True
+    
+    # ★★★ バグ修正: return を if の外に出す ★★★
+    return render_template(
+        'game_over.html',
+        total_score=total_score,
+        total_correct=total_correct,
+        is_new_highscore=is_new_highscore
+    )
+
+# サーバー起動 (Renderデプロイ対応)
+if __name__ == '__main__':
+    # このファイルが直接実行された時だけ、開発用サーバーを起動
+    # (gunicorn から呼ばれた時は、ここは実行されない)
+    app.run(debug=False, host='0.0.0.0', port=5000)
