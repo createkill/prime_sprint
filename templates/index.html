@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Prime Sprint</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     
     <style>
-      .mode-box h2 {
+        .mode-box h2 {
             font-size: 1.6em;
             margin-bottom: 10px;
         }
-        /* (ボタンの色指定) */
+        
         .btn-start { background-color: #28a745; }
         .btn-sprint { background-color: #ffc107; color: #333; }
         .btn-final { background-color: #dc3545; }
         
-        /* (モード選択ボックス) */
         .mode-select {
             display: flex;
             gap: 20px;
@@ -28,18 +27,13 @@
             padding: 20px;
         }
         
-        /* ★★★ 新しいレイアウト用のスタイル ★★★ */
-        
-        /* 難易度ごとのグループ */
         .difficulty-group {
-            margin-bottom: 25px; /* 各グループ(Start, Sprint, Final)の間隔 */
+            margin-bottom: 25px; 
         }
-        /* 最後の子要素の間隔は不要 */
         .difficulty-group:last-child {
             margin-bottom: 0;
         }
         
-        /* 難易度ボタン (幅100%に変更) */
         .btn-difficulty {
             font-size: 1.3em;
             padding: 20px;
@@ -49,22 +43,34 @@
             border-radius: 8px;
             color: white;
             transition: transform 0.2s;
-            width: 100%; /* 幅を親要素に合わせる */
+            width: 100%; 
         }
         .btn-difficulty:hover {
             transform: scale(1.03);
         }
 
-        /* ボタン下の記録 */
         .button-record {
             font-size: 1.1em;
             color: #333;
             font-weight: bold;
             margin-top: 8px;
-            /* 10問モードで2行になっても対応できるように */
             display: flex;
-            justify-content: space-around; /* スコアとタイムを左右に */
+            justify-content: space-around; 
             padding: 0 10px;
+        }
+
+        /* ★ スマホ対応 (追加) */
+        @media (max-width: 768px) {
+            .mode-select {
+                flex-direction: column; /* 縦並び に変更 */
+                gap: 30px; 
+            }
+            
+            /* (コンテナの横幅も調整) */
+            .container {
+                width: 95%;
+                padding: 20px 25px;
+            }
         }
     </style>
 </head>
@@ -78,8 +84,7 @@
             
             <div class="mode-box">
                 <h2>3分モード</h2>
-                <p>スコアを競う</p>
-                <form action="/start" method="POST">
+                <p>180秒の限界に挑め</p> <form action="/start" method="POST">
                     <input type="hidden" name="mode" value="3_minutes">
                     
                     <div class="difficulty-group">
@@ -113,8 +118,7 @@
             
             <div class="mode-box">
                 <h2>10問モード</h2>
-                <p>合計スコアと速さを競う</p>
-                <form action="/start" method="POST">
+                <p>精度と速さの10本勝負</p> <form action="/start" method="POST">
                     <input type="hidden" name="mode" value="time_attack">
                     
                     <div class="difficulty-group">

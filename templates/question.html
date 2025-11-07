@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Prime Sprint - Question</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         .status-bar { 
             display: flex; 
@@ -41,15 +41,14 @@
         
         <div class="status-bar">
             <div class="streak-counter">
-                🔥 {{ streak }} COMBO!
+                 {{ streak }} COMBO!
             </div>
             <div class="score-counter">
                 SCORE: {{ total_score }}
             </div>
         </div>
         
-        <p>この数は「素数」？ </p>
-        <div class="question">{{ number }}</div>
+        <p>PRIME or COMPOSITE?</p> <div class="question">{{ number }}</div>
         
         <form action="/check" method="POST">
             <div class="buttons">
@@ -58,26 +57,24 @@
             </div>
         </form>
 
-        <a href="/" class="back-link">トップに戻る (ゲーム中断)</a>
+        <a href="/" class="back-link" style="margin-top: 100px;">トップに戻る (中断)</a>
     </div>
 
     {% if mode == '3_minutes' %}
     <script>
-        // サーバーから渡された残り時間 (秒)
         let remaining = {{ time_remaining }};
         const timerElement = document.getElementById('timer');
 
         function updateTimer() {
             if (remaining <= 0) {
                 timerElement.innerHTML = "時間切れ！";
-                // サーバー側でもチェックしているが、念のため
                 if (window.location.pathname.endsWith('/question')) {
-                    window.location.href = "/game_over"; // 終了ページへ
+                    window.location.href = "/game_over"; 
                 }
                 return;
             }
             
-            remaining--; // 1秒減らす
+            remaining--; 
 
             const minutes = Math.floor(remaining / 60);
             const seconds = Math.floor(remaining % 60);

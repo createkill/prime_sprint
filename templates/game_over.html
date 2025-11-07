@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Game Over - Prime Sprint</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         .final-result-box {
             background: #fff;
@@ -36,18 +36,20 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="result-title wrong">Time up!</h1>
-
-        <div class="final-result-box">
+        <h1 class="result-title wrong"> Time up!</h1> <div class="final-result-box">
             <div class="final-result-item total-score">
                 合計スコア: {{ total_score }}
                 {% if is_new_highscore %}
-                    <span class="new-record"> New!</span>
+                    <span class="new-record">🎉 NEW RECORD!</span>
                 {% endif %}
             </div>
             
             <div class="final-result-item total-correct">
                 合計 正解数: {{ total_correct }} 問
+            </div>
+
+            <div class="final-result-item total-incorrect" style="color: #dc3545; font-size: 1.6em;">
+                合計 不正解: {{ total_incorrect }} 問
             </div>
         </div>
 

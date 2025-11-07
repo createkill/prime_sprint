@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Time Attack Result - Prime Sprint</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         .final-result-box {
             background: #fff;
@@ -44,14 +44,16 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="result-title correct"> 10問モード 完了</h1>
-
-        <div class="final-result-box">
+        <h1 class="result-title correct">🏁 10 QUESTIONS - CLEAR! 🏁</h1> <div class="final-result-box">
             <div class="final-result-item total-score">
-                合計スコア: {{ total_score }}
+                Final Score: {{ total_score }}
                 {% if is_new_highscore %}
                     <span class="new-record">New!</span>
                 {% endif %}
+                
+                <div class="time-detail" style="font-size: 0.7em; color: #333;">
+                    ( {{ base_score }} pts / {{ "%.2f"|format(total_time) }} s ) × 100
+                </div>
             </div>
             
             <div class="final-result-item total-time">

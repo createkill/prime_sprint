@@ -120,6 +120,7 @@ def start_game():
         # 3分モード用の初期化
         session['time_remaining'] = TIME_LIMIT_MODE_SECONDS # 残り時間 (秒)
         session['time_limit_total_correct'] = 0 
+        session['time_limit_total_incorrect'] = 0 # 不正解カウント
     
     return redirect(url_for('show_question'))
 
@@ -216,6 +217,9 @@ def check_answer():
         
         if mode == 'time_attack':
             session['ta_penalty_time'] = session.get('ta_penalty_time', 0) + PENALTY_TIME_SECONDS
+        
+        elif mode == '3_minutes': 
+            session['time_limit_total_incorrect'] = session.get('time_limit_total_incorrect', 0) + 1
 
     # 累計スコア更新 (0点未満にならない)
     session['total_score'] = max(0, session.get('total_score', 0) + score)
@@ -318,12 +322,12 @@ def game_over():
     """
     3分モード 終了ページ (難易度別)
     """
-    # チェック対象を time_remaining に変更
     if 'time_remaining' not in session or 'difficulty' not in session:
         return redirect(url_for('index'))
         
     total_score = session.get('total_score', 0)
     total_correct = session.get('time_limit_total_correct', 0)
+    total_incorrect = session.get('time_limit_total_incorrect', 0) # 不正解数を取得
     difficulty = session.get('difficulty')
     
     is_new_highscore = False
@@ -334,11 +338,12 @@ def game_over():
         session[score_key] = total_score
         is_new_highscore = True
     
-    # ★★★ バグ修正: return を if の外に出す ★★★
+    # バグ修正: return を if の外に出す
     return render_template(
         'game_over.html',
         total_score=total_score,
         total_correct=total_correct,
+        total_incorrect=total_incorrect, # テンプレートに渡す
         is_new_highscore=is_new_highscore
     )
 
