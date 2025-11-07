@@ -124,19 +124,36 @@ h2 {
 .next-link:hover {
     background-color: #0056b3;
 }
-/* ( ... ta-progress-result のスタイルの下に追加 ... ) */
 
-        /* 画面が狭い時 (例: 500px以下) の設定 */
-        @media (max-width: 500px) {
-            .navigation-buttons {
-                flex-direction: column; /* 縦並びにする */
-                align-items: center;  /* 中央揃え (縦にしたボタンが真ん中に寄る) */
-                gap: 15px; /* 縦の隙間を少し詰める */
-            }
-            
-            /* 縦並びになったボタンの幅を揃える */
-            .next-link, .back-link {
-                width: 80%; /* 幅を親要素の80%に指定 */
-                box-sizing: border-box; /* paddingを含めて幅を計算 */
-            }
-        }
+/* ★★★ これが抜けていました ★★★ */
+/* トップに戻るボタン (グレー) のスタイル */
+.back-link {
+    display: inline-block;
+    font-size: 1.2em;
+    padding: 12px 25px;
+    background: #6c757d; /* グレー */
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+.back-link:hover { 
+    background-color: #5a6268; 
+}
+
+
+/* 画面が狭い時 (例: 500px以下) の設定 */
+@media (max-width: 500px) {
+    .navigation-buttons {
+        flex-direction: column; /* 縦並びにする */
+        align-items: center;  /* 中央揃え (縦にしたボタンが真ん中に寄る) */
+        gap: 15px; /* 縦の隙間を少し詰める */
+    }
+    
+    /* 縦並びになったボタンの幅を揃える */
+    .next-link, .back-link {
+        width: 80%; /* 幅を親要素の80%に指定 */
+        box-sizing: border-box; /* paddingを含めて幅を計算 */
+    }
+}
+/* ★★★ 最後の余分な } を削除しました ★★★ */
