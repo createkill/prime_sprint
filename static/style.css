@@ -1,0 +1,142 @@
+/* 基本設定 */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Sans', 'Noto Sans CJK JP', sans-serif;
+    text-align: center;
+    background-color: #f0f4f8; /* 薄い青系の背景色 */
+    color: #333;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 90vh;
+}
+
+/* メインのコンテナ */
+.container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 30px 40px;
+    width: 90%;
+    max-width: 550px; /* index.htmlはレイアウトが違うので、これで上書きされる */
+}
+
+/* タイトル */
+h1 {
+    font-size: 2.5em;
+    color: #1a3b5d;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+h2 {
+    font-size: 1.8em;
+    color: #1a3b5d;
+    margin-top: 0;
+}
+
+/* 問題の数字 (question.html) */
+.question {
+    font-size: 4.5em;
+    font-weight: bold;
+    color: #007bff;
+    margin: 30px 0;
+    letter-spacing: -2px;
+}
+
+/* 回答ボタン (question.html) */
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* ボタン間の隙間 */
+}
+
+.btn {
+    font-size: 1.5em;
+    padding: 15px 30px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.btn-prime {
+    background-color: #28a745; /* 緑 */
+    color: white;
+}
+.btn-prime:hover {
+    background-color: #218838;
+}
+
+.btn-composite {
+    background-color: #dc3545; /* 赤 */
+    color: white;
+}
+.btn-composite:hover {
+    background-color: #c82333;
+}
+
+/* --- 結果ページ (result.html / ta_complete.html / game_over.html) --- */
+
+/* 正解・不正解のタイトル */
+.result-title.correct {
+    color: #28a745;
+}
+.result-title.wrong {
+    color: #dc3545;
+}
+
+/* 結果表示ボックス */
+.result-box {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px auto;
+}
+
+.time {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.factors {
+    font-size: 1.3em;
+    font-weight: 500;
+    color: #1a3b5d;
+    word-break: break-all; 
+}
+
+/* 次の問題へボタン */
+.next-link {
+    display: inline-block;
+    margin-top: 20px;
+    font-size: 1.2em;
+    padding: 12px 25px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+.next-link:hover {
+    background-color: #0056b3;
+}
+/* ( ... ta-progress-result のスタイルの下に追加 ... ) */
+
+        /* 画面が狭い時 (例: 500px以下) の設定 */
+        @media (max-width: 500px) {
+            .navigation-buttons {
+                flex-direction: column; /* 縦並びにする */
+                align-items: center;  /* 中央揃え (縦にしたボタンが真ん中に寄る) */
+                gap: 15px; /* 縦の隙間を少し詰める */
+            }
+            
+            /* 縦並びになったボタンの幅を揃える */
+            .next-link, .back-link {
+                width: 80%; /* 幅を親要素の80%に指定 */
+                box-sizing: border-box; /* paddingを含めて幅を計算 */
+            }
+        }

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Result - Prime Sprint</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .combo-info { margin-top: 20px; font-size: 1.3em; }
+        .streak { color: #ff6f00; font-weight: bold; font-size: 1.5em; }
+        
+        .score-info { margin-top: 20px; font-size: 1.2em; }
+        .current-score { font-size: 1.3em; font-weight: bold; color: #007bff; }
+        .total-score { font-size: 1.5em; font-weight: bold; color: #1a3b5d; margin-top: 10px; }
+        
+        .navigation-buttons { 
+            display: flex; 
+            justify-content: center; 
+            gap: 20px; 
+            margin-top: 30px; 
+        }
+        .back-link { 
+            display: inline-block; 
+            font-size: 1.2em; 
+            padding: 12px 25px; 
+            background: #6c757d; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            transition: background-color 0.2s ease; 
+        }
+        .back-link:hover { background-color: #5a6268; }
+        
+        .ta-progress-result { 
+            font-size: 1.1em; 
+            color: #17a2b8; 
+            margin-top: 10px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        {% if is_correct %}
+            <h1 class="result-title correct">正解！</h1>
+        {% else %}
+            <h1 class="result-title wrong">不正解</h1>
+        {% endif %}
+
+        <div class="result-box">
+            <h2>問題: {{ number }}</h2>
+            <div class="time">
+                タイム: {{ "%.2f"|format(time_taken) }} 秒
+            </div>
+            <div class="factors"> {{ factor_str }}
+            </div>
+        </div>
+
+        <div class="combo-info">
+            <div class="streak">
+                 {{ streak }} COMBO!
+                <span style="color: #dc3545; font-size: 0.8em;">{{ bonus }}</span>
+            </div>
+        </div>
+
+        <div class="score-info">
+            <div class="current-score">
+                獲得スコア: +{{ score }}
+            </div>
+            <div class="total-score">
+                累計スコア: {{ total_score }}
+            </div>
+        </div>
+
+        {% if mode == 'time_attack' and not is_ta_complete %}
+            <div class="ta-progress-result">
+                (次の問題: {{ question_count }} / {{ total_questions }})
+            </div>
+        {% endif %}
+
+       <div class="navigation-buttons">
+            <a href="/" class="back-link">トップに戻る</a>
+            
+            {% if is_ta_complete %}
+                <a href="/ta_complete" class="next-link">結果を見る</a>
+            {% elif is_time_up %}
+                <a href="/game_over" class="next-link">結果を見る</a>
+            {% else %}
+                <a href="/question" class="next-link">次の問題へ</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

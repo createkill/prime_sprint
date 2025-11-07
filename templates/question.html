@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Prime Sprint - Question</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .status-bar { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 1.3em; 
+            font-weight: bold; 
+            margin-bottom: 10px; 
+        }
+        .streak-counter { color: #ff6f00; }
+        .score-counter { color: #007bff; }
+        
+        /* モード進捗表示 (共通) */
+        .mode-progress {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #17a2b8; /* シアン */
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        {% if mode == 'time_attack' %}
+            <div class="mode-progress">
+                10問モード ({{ question_count }} / {{ total_questions }})
+            </div>
+        {% elif mode == '3_minutes' %}
+            <div class="mode-progress" id="timer">
+                残り時間: 03:00
+            </div>
+        {% else %}
+            <h1>Prime Sprint</h1>
+        {% endif %}
+        
+        <div class="status-bar">
+            <div class="streak-counter">
+                🔥 {{ streak }} COMBO!
+            </div>
+            <div class="score-counter">
+                SCORE: {{ total_score }}
+            </div>
+        </div>
+        
+        <p>この数は「素数」？ </p>
+        <div class="question">{{ number }}</div>
+        
+        <form action="/check" method="POST">
+            <div class="buttons">
+                <button type="submit" name="answer" value="prime" class="btn btn-prime">素数</button>
+                <button type="submit" name="answer" value="composite" class="btn btn-composite">合成数</button>
+            </div>
+        </form>
+
+        <a href="/" class="back-link">トップに戻る (ゲーム中断)</a>
+    </div>
+
+    {% if mode == '3_minutes' %}
+    <script>
+        // サーバーから渡された残り時間 (秒)
+        let remaining = {{ time_remaining }};
+        const timerElement = document.getElementById('timer');
+
+        function updateTimer() {
+            if (remaining <= 0) {
+                timerElement.innerHTML = "時間切れ！";
+                // サーバー側でもチェックしているが、念のため
+                if (window.location.pathname.endsWith('/question')) {
+                    window.location.href = "/game_over"; // 終了ページへ
+                }
+                return;
+            }
+            
+            remaining--; // 1秒減らす
+
+            const minutes = Math.floor(remaining / 60);
+            const seconds = Math.floor(remaining % 60);
+            
+            const fMinutes = String(minutes).padStart(2, '0');
+            const fSeconds = String(seconds).padStart(2, '0');
+
+            timerElement.innerHTML = `残り時間: ${fMinutes}:${fSeconds}`;
+        }
+        
+        updateTimer(); 
+        setInterval(updateTimer, 1000);
+    </script>
+    {% endif %}
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Prime Sprint</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+      .mode-box h2 {
+            font-size: 1.6em;
+            margin-bottom: 10px;
+        }
+        /* (ボタンの色指定) */
+        .btn-start { background-color: #28a745; }
+        .btn-sprint { background-color: #ffc107; color: #333; }
+        .btn-final { background-color: #dc3545; }
+        
+        /* (モード選択ボックス) */
+        .mode-select {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .mode-box {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        /* ★★★ 新しいレイアウト用のスタイル ★★★ */
+        
+        /* 難易度ごとのグループ */
+        .difficulty-group {
+            margin-bottom: 25px; /* 各グループ(Start, Sprint, Final)の間隔 */
+        }
+        /* 最後の子要素の間隔は不要 */
+        .difficulty-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* 難易度ボタン (幅100%に変更) */
+        .btn-difficulty {
+            font-size: 1.3em;
+            padding: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            transition: transform 0.2s;
+            width: 100%; /* 幅を親要素に合わせる */
+        }
+        .btn-difficulty:hover {
+            transform: scale(1.03);
+        }
+
+        /* ボタン下の記録 */
+        .button-record {
+            font-size: 1.1em;
+            color: #333;
+            font-weight: bold;
+            margin-top: 8px;
+            /* 10問モードで2行になっても対応できるように */
+            display: flex;
+            justify-content: space-around; /* スコアとタイムを左右に */
+            padding: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Prime Sprint</h1>
+        
+        <p style="margin-top: 30px; font-size: 1.2em;">モードを選んでスタート！</p>
+        
+        <div class="mode-select">
+            
+            <div class="mode-box">
+                <h2>3分モード</h2>
+                <p>スコアを競う</p>
+                <form action="/start" method="POST">
+                    <input type="hidden" name="mode" value="3_minutes">
+                    
+                    <div class="difficulty-group">
+                        <button type="submit" name="difficulty" value="start" class="btn-difficulty btn-start">
+                            Start
+                        </button>
+                        <div class="button-record">
+                            <span>High Score: {{ time_limit_scores.start }}</span>
+                        </div>
+                    </div>
+
+                    <div class="difficulty-group">
+                        <button type="submit" name="difficulty" value="sprint" class="btn-difficulty btn-sprint">
+                            Sprint
+                        </button>
+                        <div class="button-record">
+                            <span>High Score: {{ time_limit_scores.sprint }}</span>
+                        </div>
+                    </div>
+
+                    <div class="difficulty-group">
+                        <button type="submit" name="difficulty" value="final" class="btn-difficulty btn-final">
+                            Final
+                        </button>
+                        <div class="button-record">
+                            <span>High Score: {{ time_limit_scores.final }}</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="mode-box">
+                <h2>10問モード</h2>
+                <p>合計スコアと速さを競う</p>
+                <form action="/start" method="POST">
+                    <input type="hidden" name="mode" value="time_attack">
+                    
+                    <div class="difficulty-group">
+                        <button type="submit" name="difficulty" value="start" class="btn-difficulty btn-start">
+                            Start
+                        </button>
+                        <div class="button-record">
+                            <span>Score: {{ ta_scores.start }}</span>
+                            <span>Time: {% if ta_times.start == 9999 %}-{% else %}{{ "%.2f"|format(ta_times.start) }}s{% endif %}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="difficulty-group">
+                        <button type="submit" name="difficulty" value="sprint" class="btn-difficulty btn-sprint">
+                            Sprint
+                        </button>
+                        <div class="button-record">
+                            <span>Score: {{ ta_scores.sprint }}</span>
+                            <span>Time: {% if ta_times.sprint == 9999 %}-{% else %}{{ "%.2f"|format(ta_times.sprint) }}s{% endif %}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="difficulty-group">
+                        <button type="submit" name="difficulty" value="final" class="btn-difficulty btn-final">
+                            Final
+                        </button>
+                        <div class="button-record">
+                            <span>Score: {{ ta_scores.final }}</span>
+                            <span>Time: {% if ta_times.final == 9999 %}-{% else %}{{ "%.2f"|format(ta_times.final) }}s{% endif %}</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

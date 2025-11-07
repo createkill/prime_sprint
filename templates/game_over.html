@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Game Over - Prime Sprint</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .final-result-box {
+            background: #fff;
+            border: 2px solid #dc3545; /* 赤色 */
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .final-result-item {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .total-score { color: #1a3b5d; }
+        .total-correct { color: #28a745; }
+        
+        .new-record {
+            font-size: 1.2em;
+            color: #dc3545;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="result-title wrong">Time up!</h1>
+
+        <div class="final-result-box">
+            <div class="final-result-item total-score">
+                合計スコア: {{ total_score }}
+                {% if is_new_highscore %}
+                    <span class="new-record"> New!</span>
+                {% endif %}
+            </div>
+            
+            <div class="final-result-item total-correct">
+                合計 正解数: {{ total_correct }} 問
+            </div>
+        </div>
+
+        <a href="/" class="next-link" style="margin-top: 30px;">トップに戻る</a>
+    </div>
+</body>
+</html>
