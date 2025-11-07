@@ -1,10 +1,15 @@
 import time
 import random
+import os  # ★★★ これを追加 ★★★
 from flask import Flask, render_template, request, session, redirect, url_for
 
 app = Flask(__name__)
+
+app = Flask(__name__)
 # セッションの秘密鍵
-app.config['SECRET_KEY'] = 'your-secret-key-final-penalty' 
+# Renderの環境変数 'SECRET_KEY' を読み込む。見つからなければローカル用のキーを使う。
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'local_development_key_fallback')
+
 
 # ---------------------------------
 # 定数・設定
