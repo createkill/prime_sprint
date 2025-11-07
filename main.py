@@ -110,12 +110,12 @@ def start_game():
         # 10問モード用の初期化
         session['question_count'] = 1 
         session['ta_total_correct'] = 0 
-        session['ta_start_time'] = time.time()
-        session['ta_penalty_time'] = 0 # ペナルティタイム初期化
+        session['ta_total_active_time'] = 0 # 問題ページの合計時間
+        session['ta_penalty_time'] = 0 
     
     elif session['mode'] == '3_minutes':
         # 3分モード用の初期化
-        session['mode_end_time'] = time.time() + TIME_LIMIT_MODE_SECONDS
+        session['time_remaining'] = TIME_LIMIT_MODE_SECONDS # 残り時間 (秒)
         session['time_limit_total_correct'] = 0 
     
     return redirect(url_for('show_question'))
@@ -134,14 +134,18 @@ def show_question():
     # 3分モードの時間切れチェック
     time_remaining = 0
     if mode == '3_minutes':
-        end_time = session.get('mode_end_time', 0)
-        time_remaining = end_time - time.time()
+        time_remaining = session.get('time_remaining', 0)
         if time_remaining <= 0:
             return redirect(url_for('game_over'))
         
     question_num = generate_question(difficulty)
-    session['start_time'] = time.time()
+    
+    # (これは result.html での "タイム: X.XX秒" 表示用)
+    session['start_time'] = time.time() 
     session['question_num'] = question_num
+    
+    # 全モード共通: 問題表示の開始時刻を記録 (タイマー制御用)
+    session['q_start_time'] = time.time() 
     
     return render_template(
         'question.html',
@@ -162,12 +166,18 @@ def check_answer():
     if 'question_num' not in session: 
         return redirect(url_for('index'))
         
+    # (1) 問題ページにいた時間（アクティブ時間）を計算
+    q_time_taken = time.time() - session.get('q_start_time', time.time())
+    
     user_answer = request.form['answer'] 
-    start_time = session.get('start_time', 0)
+    
+    # (2) result.html 表示用の1問ごとのタイム (これはタイマー制御とは無関係)
+    start_time_for_result = session.get('start_time', time.time())
+    time_taken_for_result = time.time() - start_time_for_result
+
     number = session.get('question_num', 0)
     mode = session.get('mode')
 
-    time_taken = time.time() - start_time
     factors = prime_factorization(number)
     
     correct_answer = 'prime' if len(factors) == 1 else 'composite'
@@ -199,15 +209,12 @@ def check_answer():
         
     else: # 不正解
         session['streak'] = 0 
-        
-        # ペナルティ: 問題の数の半分を引く
-        score = int(-number / 2) 
+        score = int(-number / 2) # ペナルティ
         
         if mode == 'time_attack':
-            # 10問モードのタイムペナルティ
             session['ta_penalty_time'] = session.get('ta_penalty_time', 0) + PENALTY_TIME_SECONDS
 
-    # 累計スコア更新 (0点未満にならないようにする)
+    # 累計スコア更新 (0点未満にならない)
     session['total_score'] = max(0, session.get('total_score', 0) + score)
     
     # --- モード分岐ロジック ---
@@ -215,27 +222,33 @@ def check_answer():
     is_time_up = False     
     
     if mode == 'time_attack':
+        # 10問モード: 合計アクティブ時間に加算
+        session['ta_total_active_time'] = session.get('ta_total_active_time', 0) + q_time_taken
+        
         current_q_count = session.get('question_count', 0)
         session['question_count'] = current_q_count + 1
         
         if current_q_count >= TIME_ATTACK_QUESTIONS:
             is_ta_complete = True
-            # 最終タイム計算 (ペナルティ込み)
-            base_time = time.time() - session.get('ta_start_time', 0)
+            # 最終タイム計算 (アクティブ時間 + ペナルティ)
+            base_time = session.get('ta_total_active_time', 0)
             penalty_time = session.get('ta_penalty_time', 0)
             session['ta_total_time'] = base_time + penalty_time
             session['ta_base_time'] = base_time
-            session['ta_total_penalty'] = penalty_time
 
     elif mode == '3_minutes':
-        end_time = session.get('mode_end_time', 0)
-        if time.time() >= end_time:
+        # 3分モード: 残り時間から減算
+        remaining = session.get('time_remaining', 0) - q_time_taken
+        session['time_remaining'] = remaining
+        
+        if remaining <= 0:
             is_time_up = True 
+            session['time_remaining'] = 0 # マイナスにしない
 
     return render_template(
         'result.html',
         number=number, is_correct=is_correct, factor_str=factor_str,
-        time_taken=time_taken,
+        time_taken=time_taken_for_result, # 表示用の1問タイム
         streak=session.get('streak', 0), bonus=bonus,
         score=score, total_score=session.get('total_score', 0),
         mode=mode,
@@ -248,78 +261,58 @@ def check_answer():
 @app.route('/ta_complete')
 def ta_complete():
     """
-    10問モード 完了ページ (難易度別)
+    10問モード 完了ページ (スコア ÷ 時間)
     """
     if 'ta_total_time' not in session or 'difficulty' not in session:
         return redirect(url_for('index'))
         
-    total_score = session.get('total_score', 0)
-    total_time = session.get('ta_total_time', 0)
-    total_correct = session.get('ta_total_correct', 0)
-    difficulty = session.get('difficulty') 
+    # (1) 基本スコア (問題の数 * コンボ - ペナルティスコア)
+    base_score = session.get('total_score', 0)
     
-    base_time = session.get('ta_base_time', total_time)
-    total_penalty = session.get('ta_total_penalty', 0)
+    # (2) 合計タイム (アクティブ時間 + ペナルティタイム)
+    total_time = session.get('ta_total_time', 0)
+    
+    # ゼロ除算を避ける
+    if total_time <= 0:
+        total_time = 1 
+
+    # (3) 最終スコア (スコア効率)
+    final_score = int((base_score / total_time) * 100)
+
+    # (4) 記録の保存
+    difficulty = session.get('difficulty') 
+    total_correct = session.get('ta_total_correct', 0)
     
     is_new_highscore = False
     is_new_best_time = False
     
-    # 難易度別の動的キー
     score_key = f"ta_max_score_{difficulty}"
     time_key = f"ta_best_time_{difficulty}"
     
-    # ハイスコア更新
-    if total_score > session.get(score_key, 0):
-        session[score_key] = total_score
+    if final_score > session.get(score_key, 0):
+        session[score_key] = final_score
         is_new_highscore = True
         
-    # ベストタイム更新 (全問正解時のみ)
     if total_correct == TIME_ATTACK_QUESTIONS and total_time < session.get(time_key, 9999):
         session[time_key] = total_time
         is_new_best_time = True
         
     return render_template(
         'ta_complete.html',
-        total_score=total_score,
+        total_score=final_score,      # 最終スコア
+        base_score=base_score,        # 表示用: 元のスコア
         total_time=total_time,
         total_correct=total_correct,
         total_questions=TIME_ATTACK_QUESTIONS,
         is_new_highscore=is_new_highscore,
         is_new_best_time=is_new_best_time,
-        base_time=base_time,
-        total_penalty=total_penalty
+        base_time=session.get('ta_base_time', total_time),
+        total_penalty=session.get('ta_penalty_time', 0)
     )
 
 @app.route('/game_over')
 def game_over():
     """
-    3分モード 終了ページ (難易D度別)
+    3分モード 終了ページ (難易度別)
     """
-    if 'mode_end_time' not in session or 'difficulty' not in session:
-        return redirect(url_for('index'))
-        
-    total_score = session.get('total_score', 0)
-    total_correct = session.get('time_limit_total_correct', 0)
-    difficulty = session.get('difficulty')
-    
-    is_new_highscore = False
-    
-    # 難易度別の動的キー
-    score_key = f"time_limit_max_score_{difficulty}" 
-
-    if total_score > session.get(score_key, 0):
-        session[score_key] = total_score
-        is_new_highscore = True
-        
-    return render_template(
-        'game_over.html',
-        total_score=total_score,
-        total_correct=total_correct,
-        is_new_highscore=is_new_highscore
-    )
-
-# サーバー起動 (Renderデプロイ対応)
-if __name__ == '__main__':
-    # このファイルが直接実行された時だけ、開発用サーバーを起動
-    # (gunicorn から呼ばれた時は、ここは実行されない)
-    app.run(debug=False, host='0.0.0.0', port=5000)
+    #
