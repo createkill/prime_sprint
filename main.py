@@ -54,10 +54,33 @@ def generate_question(difficulty):
     """
     if difficulty not in DIFFICULTY_RANGES:
         difficulty = 'start' # デフォルト
+        
     min_val, max_val = DIFFICULTY_RANGES[difficulty]
+    
     while True:
         num = random.randint(min_val, max_val)
-        if num % 2 != 0 and num % 5 != 0:
+        
+        # 共通ルール: 奇数(2の倍数でない) かつ 5の倍数でない
+        if num % 2 == 0 or num % 5 == 0:
+            continue
+
+        # ★★★ ここからが新しいロジック ★★★
+        
+        # 'final' モードの時だけ、3の倍数の扱いを変える
+        if difficulty == 'final':
+            # もし3の倍数だったら (簡単すぎるため)
+            if num % 3 == 0:
+                # 80%の確率で「やり直し」(continue)
+                # これにより、3の倍数(合成数)が出題される確率が 1/5 に減る
+                if random.random() < 0.75: # 0.0 ~ 1.0 の乱数 < 0.8
+                    continue
+            
+            # 3の倍数でない場合、または 25% の抽選を突破した場合は、
+            # その数を問題として採用
+            return num
+            
+        else:
+            # 'start' 'sprint' モードの場合は、3の倍数でもそのまま出題
             return num
 
 # ---------------------------------
